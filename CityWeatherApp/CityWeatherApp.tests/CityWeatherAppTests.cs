@@ -183,11 +183,14 @@ namespace CityWeatherApp.tests
                     }
                 );
 
-            CityWeatherController result = new CityWeatherController(
-                new CityDal(), 
-                countriesClient.Object, 
-                openWeatherClient.Object, 
-                new CityResponseBuilder());
+            ICityService cityService = new CityService(
+                new CityDal(),
+                countriesClient.Object,
+                openWeatherClient.Object,
+                new CityResponseBuilder()
+            );
+
+            CityWeatherController result = new CityWeatherController(cityService);
 
             return result;
         }

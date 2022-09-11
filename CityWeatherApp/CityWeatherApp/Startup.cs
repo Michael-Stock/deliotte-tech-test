@@ -34,6 +34,7 @@ namespace CityWeatherApp
             services.AddScoped<IOpenWeatherClient, OpenWeatherClient>();
             services.AddScoped<ICountriesClient, CountriesClient>();
             services.AddScoped<ICityResponseBuilder, CityResponseBuilder>();
+            services.AddScoped<ICityService, CityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

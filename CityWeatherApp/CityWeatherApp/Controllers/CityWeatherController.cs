@@ -13,21 +13,11 @@ namespace CityWeatherApp.Controllers
     [Route("[controller]")]
     public class CityWeatherController : ControllerBase
     {
-        private ICityDal cityDal;
-        private ICountriesClient countriesClient;
-        private IOpenWeatherClient openWeatherClient;
-        private ICityResponseBuilder cityResponseBuilder;
+        ICityService cityService;
 
-        public CityWeatherController(
-            ICityDal cityDal,
-            ICountriesClient countriesClient,
-            IOpenWeatherClient openWeatherClient,
-            ICityResponseBuilder cityResponseBuilder)
+        public CityWeatherController(ICityService cityService)
         {
-            this.cityDal = cityDal;
-            this.countriesClient = countriesClient;
-            this.openWeatherClient = openWeatherClient;
-            this.cityResponseBuilder = cityResponseBuilder;
+            this.cityService = cityService;
         }
 
         /// <summary>
@@ -38,34 +28,14 @@ namespace CityWeatherApp.Controllers
         [HttpPost()]
         public IActionResult AddCity(AddCityRequest request)
         {
-            cityDal.AddCity(request);
+            cityService.AddCity(request);
             return NoContent();
         }
 
         [HttpGet()]
         public async Task<List<CityResponse>> SearchCity(string name)
         {
-            List<CityRecord> cityRecords = cityDal.SearchByName(name);
-
-            if (cityRecords.Count == 0)
-            {
-                return new List<CityResponse>();
-            }
-
-            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecords.First().Country);
-            CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(name);
-
-            CityResponseBuilderParams parameters = new CityResponseBuilderParams()
-            {
-                CityRecord = cityRecords.First(),
-                CountryResponse = countryResponse,
-                CityWeatherResponse = weatherResponse
-            };
-
-            List<CityResponse> results = new List<CityResponse>()
-            {
-                cityResponseBuilder.Build(parameters)
-            };
+            List<CityResponse> results = await cityService.SearchCity(name);
 
             return results;
         }
@@ -73,14 +43,15 @@ namespace CityWeatherApp.Controllers
         [HttpPut("{id:int}")]
         public IActionResult UpdateById(int id, UpdateCityRequest request)
         {
-            CityRecord existingCity = cityDal.GetById(id);
-
-            if (existingCity == null)
+            try
+            {
+                cityService.UpdateById(id, request);
+            }
+            catch
             {
                 return NotFound();
             }
 
-            cityDal.UpdateById(id, request);
 
             return Ok();
         }
@@ -88,14 +59,14 @@ namespace CityWeatherApp.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult DeleteById(int id)
         {
-            CityRecord existingCity = cityDal.GetById(id);
-
-            if (existingCity == null)
+            try
+            {
+                cityService.DeleteById(id);
+            }
+            catch
             {
                 return NotFound();
             }
-
-            cityDal.DeleteById(id);
 
             return Ok();
         }
