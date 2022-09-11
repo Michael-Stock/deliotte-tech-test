@@ -17,15 +17,10 @@ namespace CityWeatherApp.Controllers
             this.cityService = cityService;
         }
 
-        /// <summary>
-        /// Adds a city
-        /// </summary>
-        /// <param name="request">The add city request</param>
-        /// <returns></returns>
         [HttpPost()]
-        public IActionResult AddCity(AddCityRequest request)
+        public async Task<IActionResult> AddCity(AddCityRequest request)
         {
-            cityService.AddCity(request);
+            await cityService.AddCity(request);
             return NoContent();
         }
 
@@ -38,11 +33,11 @@ namespace CityWeatherApp.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult UpdateById(int id, UpdateCityRequest request)
+        public async Task<IActionResult> UpdateById(int id, UpdateCityRequest request)
         {
             try
             {
-                cityService.UpdateById(id, request);
+                await cityService.UpdateById(id, request);
             }
             catch
             {
@@ -53,11 +48,11 @@ namespace CityWeatherApp.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteById(int id)
+        public async Task<IActionResult> DeleteById(int id)
         {
             try
             {
-                cityService.DeleteById(id);
+                await cityService.DeleteById(id);
             }
             catch
             {

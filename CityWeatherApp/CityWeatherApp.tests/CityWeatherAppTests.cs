@@ -30,7 +30,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CityMockData.CreateNewYorkCity());
+            await controller.AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("New York");
 
@@ -57,7 +57,10 @@ namespace CityWeatherApp.tests
 
             List<AddCityRequest> cities = CityMockData.CreateNewportCities();
 
-            cities.ForEach(city => controller.AddCity(city));
+            foreach (var city in cities)
+            {
+                await controller.AddCity(city);
+            }
 
             List<CityResponse> results = await controller.SearchCity("Newport");
 
@@ -95,7 +98,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CityMockData.CreateNewYorkCity());
+            await controller .AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("Paris");
 
@@ -107,12 +110,12 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CityMockData.CreateNewYorkCity());
+            await controller .AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("New York");
             CityResponse city = cities[0];
 
-            controller.DeleteById((int)city.Id);
+            await controller.DeleteById((int)city.Id);
 
             List<CityResponse> result = await controller.SearchCity("New York");
 
@@ -120,11 +123,11 @@ namespace CityWeatherApp.tests
         }
 
         [TestMethod]
-        public void DeleteCityById_NotFound_ReturnsNotFound()
+        public async Task DeleteCityById_NotFound_ReturnsNotFound()
         {
             CityWeatherController controller = CreateController();
 
-            NotFoundResult result = controller.DeleteById(1) as NotFoundResult;
+            NotFoundResult result = await controller.DeleteById(1) as NotFoundResult;
 
             Assert.AreEqual(404, result.StatusCode);
         }
@@ -134,7 +137,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CityMockData.CreateNewYorkCity());
+            await controller .AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("New York");
             CityResponse city = cities[0];
@@ -146,7 +149,7 @@ namespace CityWeatherApp.tests
                 DateEstablished = new DateTime(2022, 10, 1)
             };
 
-            controller.UpdateById((int)city.Id, request);
+            await controller .UpdateById((int)city.Id, request);
 
             List<CityResponse> results = await controller.SearchCity("New York");
             CityResponse result = results[0];
@@ -157,11 +160,11 @@ namespace CityWeatherApp.tests
         }
 
         [TestMethod]
-        public void UpdateCityById_NotFound_ReturnsNotFound()
+        public async Task UpdateCityById_NotFound_ReturnsNotFound()
         {
             CityWeatherController controller = CreateController();
 
-            NotFoundResult result = controller.UpdateById(1, null) as NotFoundResult;
+            NotFoundResult result = await controller.UpdateById(1, null) as NotFoundResult;
 
             Assert.AreEqual(404, result.StatusCode);
         }

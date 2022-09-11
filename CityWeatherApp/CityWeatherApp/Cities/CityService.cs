@@ -27,54 +27,48 @@ namespace CityWeatherApp.Cities
             this.cityResponseBuilder = cityResponseBuilder;
         }
 
-        public void AddCity(AddCityRequest request)
+        public async Task AddCity(AddCityRequest request)
         {
-            cityDal.AddCity(request);
+            await cityDal.AddCity(request);
         }
 
         public async Task<List<CityResponse>> SearchCity(string name)
         {
-            List<CityRecord> cityRecords = cityDal.SearchByName(name);
+            List<CityRecord> cityRecords = await cityDal.SearchByName(name);
 
             if (cityRecords.Count == 0)
             {
                 return new List<CityResponse>();
             }
 
-            List<CityResponse> results = new List<CityResponse>();
+            var tasks = cityRecords.Select(city => BuildCity(city));
+            var results = await Task.WhenAll(tasks);
 
-            foreach (var cityRecord in cityRecords)
-            {
-                CityResponse cityResponse = await BuildCity(cityRecord);
-
-                results.Add(cityResponse);
-            }
-
-            return results;
+            return results.ToList();
         }
 
-        public void UpdateById(int id, UpdateCityRequest request)
+        public async Task UpdateById(int id, UpdateCityRequest request)
         {
-            CityRecord existingCity = cityDal.GetById(id);
+            CityRecord existingCity = await cityDal.GetById(id);
 
             if (existingCity == null)
             {
                 throw new Exception("City not found");
             }
 
-            cityDal.UpdateById(id, request);
+            await cityDal.UpdateById(id, request);
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
-            CityRecord existingCity = cityDal.GetById(id);
+            CityRecord existingCity = await cityDal.GetById(id);
 
             if (existingCity == null)
             {
                 throw new Exception("City not found");
             }
 
-            cityDal.DeleteById(id);
+            await cityDal.DeleteById(id);
         }
 
         private async Task<CityResponse> BuildCity(CityRecord cityRecord)
@@ -97,9 +91,9 @@ namespace CityWeatherApp.Cities
 
     public interface ICityService
     {
-        public void AddCity(AddCityRequest request);
-        public void UpdateById(int id, UpdateCityRequest request);
-        public void DeleteById(int id);
+        public Task AddCity(AddCityRequest request);
+        public Task UpdateById(int id, UpdateCityRequest request);
+        public Task DeleteById(int id);
 
         public Task<List<CityResponse>> SearchCity(string name);
     }

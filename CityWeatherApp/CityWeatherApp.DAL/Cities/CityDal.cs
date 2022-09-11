@@ -1,16 +1,18 @@
 ﻿using CityWeatherApp.Domain;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CityWeatherApp.DAL.Cities
 {
     public class CityDal : ICityDal
     {
-        public CityRecord GetById(int id)
+        public async Task<CityRecord> GetById(int id)
         {
             using (CityContext context = new CityContext())
             {
-                CityRecord result = context.Cities.FirstOrDefault(city => city.Id == id);
+                CityRecord result = await context.Cities.FirstOrDefaultAsync(city => city.Id == id);
 
                 if (result == null)
                 {
@@ -21,7 +23,7 @@ namespace CityWeatherApp.DAL.Cities
             }
         }
 
-        public void AddCity(AddCityRequest city)
+        public async Task AddCity(AddCityRequest city)
         {
             using (CityContext context = new CityContext())
             {
@@ -34,21 +36,21 @@ namespace CityWeatherApp.DAL.Cities
                     EstimatedPopulation = city.EstimatedPopulation,
                 });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public List<CityRecord> SearchByName(string name)
+        public async Task<List<CityRecord>> SearchByName(string name)
         {
             using (CityContext context = new CityContext())
             {
-                List<CityRecord> cities = context.Cities.Where(city => city.Name == name).ToList();
+                List<CityRecord> cities = await context.Cities.Where(city => city.Name == name).ToListAsync();
 
                 return cities;
             }
         }
 
-        public void UpdateById(int id, UpdateCityRequest request)
+        public async Task UpdateById(int id, UpdateCityRequest request)
         {
             using (CityContext context = new CityContext())
             {
@@ -57,32 +59,32 @@ namespace CityWeatherApp.DAL.Cities
                 toModify.DateEstablished = request.DateEstablished;
                 toModify.EstimatedPopulation = request.EstimatedPopulation;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
             using (CityContext context = new CityContext())
             {
                 CityRecord toBeDeleted = new CityRecord { Id = id };
                 context.Cities.Attach(toBeDeleted);
                 context.Cities.Remove(toBeDeleted);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
     }
 
     public interface ICityDal
     {
-        public CityRecord GetById(int id);
+        public Task<CityRecord> GetById(int id);
 
-        public void AddCity(AddCityRequest city);
+        public Task AddCity(AddCityRequest city);
 
-        public List<CityRecord> SearchByName(string name);
+        public Task<List<CityRecord>> SearchByName(string name);
 
-        public void UpdateById(int id, UpdateCityRequest request);
+        public Task UpdateById(int id, UpdateCityRequest request);
 
-        public void DeleteById(int id);
+        public Task DeleteById(int id);
     }
 }
