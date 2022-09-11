@@ -73,6 +73,7 @@ namespace CityWeatherApp.Cities
 
         private async Task<CityResponse> BuildCity(CityRecord cityRecord)
         {
+            // Could be done in parallel but I will need the result of the country response to get the right city later
             List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecord.Country);
             CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(cityRecord.Name);
 

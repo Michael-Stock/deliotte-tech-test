@@ -20,8 +20,8 @@ namespace CityWeatherApp.tests
             CityResponseBuilderParams parameters = new CityResponseBuilderParams()
             {
                 CityRecord = CreateTestCityRecord(),
-                CountryResponse = CreateCountryResponse(),
-                CityWeatherResponse = CreateWeatherResponse()
+                CountryResponse = CityMockData.CreateUsaCountryResponse(),
+                CityWeatherResponse = CityMockData.CreateNewYorkWeather()
 
             };
 
@@ -66,41 +66,6 @@ namespace CityWeatherApp.tests
             Assert.AreEqual(null, result.ThreeDigitCountryCode);
             Assert.AreEqual(null, result.Weather);
             Assert.AreEqual(null, result.Currency);
-        }
-
-        private static CityWeatherResponse CreateWeatherResponse()
-        {
-            return new CityWeatherResponse()
-            {
-                weather = new List<CityWeatherEntry>()
-                {
-                    new CityWeatherEntry()
-                    {
-                        main = "Rain"
-                    }
-                }
-            };
-        }
-
-        private static List<GetCountryByNameResponse> CreateCountryResponse()
-        {
-            return new List<GetCountryByNameResponse>()
-                {
-                    new GetCountryByNameResponse()
-                    {
-                        cca2 = "US",
-                        cca3 = "USA",
-                        currencies = new Dictionary<string, Currency>()
-                        {
-                            { 
-                                "USD", new Currency()
-                                {
-                                    name = "US Dollar"
-                                }
-                            }
-                        }
-                    }
-                };
         }
 
         public CityRecord CreateTestCityRecord()

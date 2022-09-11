@@ -27,6 +27,7 @@ This application uses sqlite as a database store that will store a file on the l
 - Tests using BDD at the API level, so they could be written by QA if required
 - CI/CD setup
 - Swagger docs
+- API validation of the input
 
 Many more cases need to be handled, some include:
 

@@ -115,7 +115,7 @@ namespace CityWeatherApp.tests
             List<CityResponse> cities = await controller.SearchCity("New York");
             CityResponse city = cities[0];
 
-            await controller.DeleteById((int)city.Id);
+            await controller.DeleteById(city.Id);
 
             List<CityResponse> result = await controller.SearchCity("New York");
 
@@ -149,7 +149,7 @@ namespace CityWeatherApp.tests
                 DateEstablished = new DateTime(2022, 10, 1)
             };
 
-            await controller .UpdateById((int)city.Id, request);
+            await controller .UpdateById(city.Id, request);
 
             List<CityResponse> results = await controller.SearchCity("New York");
             CityResponse result = results[0];
