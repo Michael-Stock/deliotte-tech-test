@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using CityWeatherApp.Configuration;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,11 +11,14 @@ namespace CityWeatherApp.ThirdParty
     public class OpenWeatherClient : IOpenWeatherClient
     {
         private IHttpClientFactory clientFactory;
-        private string apiKey = "c55cbb2d4bdf447e63a8c57f3e434adb";
+        private string url;
+        private string apiKey;
 
-        public OpenWeatherClient(IHttpClientFactory clientFactory)
+        public OpenWeatherClient(IHttpClientFactory clientFactory, IOptions<ExternalApiOptions> configuration)
         {
             this.clientFactory = clientFactory;
+            this.url = configuration.Value.WeatherApiUrl;
+            this.apiKey = configuration.Value.WeatherApiKey;
         }
 
         public async Task<CityWeatherResponse> GetCityWeather(string name)
@@ -35,7 +40,7 @@ namespace CityWeatherApp.ThirdParty
         {
             HttpClient client = clientFactory.CreateClient();
 
-            string requestUri = $"http://api.openweathermap.org/geo/1.0/direct?q={name}&appid={apiKey}";
+            string requestUri = $"http://{url}/geo/1.0/direct?q={name}&appid={apiKey}";
 
             HttpResponseMessage response = await client.GetAsync(requestUri);
 
@@ -54,7 +59,7 @@ namespace CityWeatherApp.ThirdParty
         {
             HttpClient client = clientFactory.CreateClient();
 
-            string requestUri = $"https://api.openweathermap.org/data/2.5/weather?lat={cityCoordinates.lat}&lon={cityCoordinates.lon}&appid={apiKey}";
+            string requestUri = $"https://{url}/data/2.5/weather?lat={cityCoordinates.lat}&lon={cityCoordinates.lon}&appid={apiKey}";
 
             HttpResponseMessage response = await client.GetAsync(requestUri);
 

@@ -1,4 +1,5 @@
 using CityWeatherApp.Cities;
+using CityWeatherApp.Configuration;
 using CityWeatherApp.DAL.Cities;
 using CityWeatherApp.ThirdParty;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +30,8 @@ namespace CityWeatherApp
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+
+            services.Configure<ExternalApiOptions>(Configuration.GetSection(ExternalApiOptions.ExternalApi));
 
             services.AddScoped<ICityDal, CityDal>();
             services.AddScoped<IOpenWeatherClient, OpenWeatherClient>();

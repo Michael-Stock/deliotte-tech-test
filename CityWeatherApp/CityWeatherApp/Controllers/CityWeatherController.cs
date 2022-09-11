@@ -1,10 +1,7 @@
 ﻿using CityWeatherApp.Cities;
-using CityWeatherApp.DAL.Cities;
 using CityWeatherApp.Domain;
-using CityWeatherApp.ThirdParty;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CityWeatherApp.Controllers
@@ -51,7 +48,6 @@ namespace CityWeatherApp.Controllers
             {
                 return NotFound();
             }
-
 
             return Ok();
         }

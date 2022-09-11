@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CityWeatherApp.Configuration;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,17 +12,19 @@ namespace CityWeatherApp.ThirdParty
     public class CountriesClient : ICountriesClient
     {
         private IHttpClientFactory clientFactory;
+        private string url;
 
-        public CountriesClient(IHttpClientFactory clientFactory)
+        public CountriesClient(IHttpClientFactory clientFactory, IOptions<ExternalApiOptions> configuration)
         {
             this.clientFactory = clientFactory;
+            this.url = configuration.Value.CountryApiUrl;
         }
 
         public async Task<List<GetCountryByNameResponse>> GetByName(string name)
         {
             HttpClient client = clientFactory.CreateClient();
 
-            string requestUri = $"https://restcountries.com/v3.1/name/{name}";
+            string requestUri = $"https://{url}/v3.1/name/{name}";
 
             HttpResponseMessage response = await client.GetAsync(requestUri);
 
