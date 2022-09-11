@@ -30,7 +30,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateNewYorkCity());
+            controller.AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("New York");
 
@@ -55,12 +55,9 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            List<AddCityRequest> cities = CreateNewportCities();
+            List<AddCityRequest> cities = CityMockData.CreateNewportCities();
 
-            cities.ForEach(city =>
-            {
-                controller.AddCity(city);
-            });
+            cities.ForEach(city => controller.AddCity(city));
 
             List<CityResponse> results = await controller.SearchCity("Newport");
 
@@ -98,7 +95,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateNewYorkCity());
+            controller.AddCity(CityMockData.CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("Paris");
 
@@ -110,14 +107,14 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateNewYorkCity());
+            controller.AddCity(CityMockData.CreateNewYorkCity());
 
-            List<CityResponse> cities = await controller .SearchCity("New York");
+            List<CityResponse> cities = await controller.SearchCity("New York");
             CityResponse city = cities[0];
 
             controller.DeleteById((int)city.Id);
 
-            List<CityResponse> result = await controller .SearchCity("New York");
+            List<CityResponse> result = await controller.SearchCity("New York");
 
             Assert.AreEqual(0, result.Count);
         }
@@ -137,9 +134,9 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateNewYorkCity());
+            controller.AddCity(CityMockData.CreateNewYorkCity());
 
-            List<CityResponse> cities = await controller .SearchCity("New York");
+            List<CityResponse> cities = await controller.SearchCity("New York");
             CityResponse city = cities[0];
 
             UpdateCityRequest request = new UpdateCityRequest()
@@ -151,7 +148,7 @@ namespace CityWeatherApp.tests
 
             controller.UpdateById((int)city.Id, request);
 
-            List<CityResponse> results = await controller .SearchCity("New York");
+            List<CityResponse> results = await controller.SearchCity("New York");
             CityResponse result = results[0];
 
             Assert.AreEqual(1, result.TouristRating);
@@ -169,67 +166,21 @@ namespace CityWeatherApp.tests
             Assert.AreEqual(404, result.StatusCode);
         }
 
-        public AddCityRequest CreateNewYorkCity()
-        {
-            DateTime cityDate = new DateTime(2001, 05, 01);
-
-            AddCityRequest result = new AddCityRequest()
-            {
-                Name = "New York",
-                State = "New York",
-                TouristRating = 5,
-                Country = "USA",
-                DateEstablished = cityDate,
-                EstimatedPopulation = 23000,
-            };
-
-            return result;
-        }
-
-        public List<AddCityRequest> CreateNewportCities()
-        {
-            DateTime cityDate = new DateTime(2001, 05, 01);
-
-            List<AddCityRequest> results = new List<AddCityRequest>()
-            {
-                new AddCityRequest()
-                {
-                    Name = "Newport",
-                    State = "Gwent",
-                    TouristRating = 2,
-                    Country = "United Kingdom",
-                    DateEstablished = cityDate,
-                    EstimatedPopulation = 30000,
-                },
-                new AddCityRequest()
-                {
-                    Name = "Newport",
-                    State = "Rhode Island",
-                    TouristRating = 5,
-                    Country = "USA",
-                    DateEstablished = cityDate,
-                    EstimatedPopulation = 50000
-                }
-            };
-
-            return results;
-        }
-
         private CityWeatherController CreateController()
         {
             Mock<ICountriesClient> countriesClient = new Mock<ICountriesClient>();
             countriesClient
-                .Setup(m => m.GetByName(It.Is<string>(s => s == "USA"))).ReturnsAsync(CreateUsaCountryResponse());
+                .Setup(m => m.GetByName(It.Is<string>(s => s == "USA"))).ReturnsAsync(CityMockData.CreateUsaCountryResponse());
             
             countriesClient
-                .Setup(m => m.GetByName(It.Is<string>(s => s == "United Kingdom"))).ReturnsAsync(CreateUkCountryResponse());
+                .Setup(m => m.GetByName(It.Is<string>(s => s == "United Kingdom"))).ReturnsAsync(CityMockData.CreateUkCountryResponse());
 
             Mock<IOpenWeatherClient> openWeatherClient = new Mock<IOpenWeatherClient>();
             openWeatherClient
-                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "New York"))).ReturnsAsync(CreateNewYorkWeather());
+                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "New York"))).ReturnsAsync(CityMockData.CreateNewYorkWeather());
 
             openWeatherClient
-                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "Newport"))).ReturnsAsync(CreateNewportWeather());
+                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "Newport"))).ReturnsAsync(CityMockData.CreateNewportWeather());
 
             ICityService cityService = new CityService(
                 new CityDal(),
@@ -239,84 +190,6 @@ namespace CityWeatherApp.tests
             );
 
             CityWeatherController result = new CityWeatherController(cityService);
-
-            return result;
-        }
-
-        private List<GetCountryByNameResponse> CreateUsaCountryResponse()
-        {
-            List<GetCountryByNameResponse> result = new List<GetCountryByNameResponse>()
-            {
-                new GetCountryByNameResponse()
-                {
-                    cca2 = "US",
-                    cca3 = "USA",
-                    currencies = new Dictionary<string, Currency>()
-                    {
-                        {
-                            "USD", new Currency()
-                            {
-                                name = "US Dollar"
-                            }
-                        }
-                    }
-                }
-            };
-
-            return result;
-        }
-
-        private List<GetCountryByNameResponse> CreateUkCountryResponse()
-        {
-            List<GetCountryByNameResponse> result = new List<GetCountryByNameResponse>()
-            {
-                new GetCountryByNameResponse()
-                {
-                    cca2 = "GB",
-                    cca3 = "GBR",
-                    currencies = new Dictionary<string, Currency>()
-                    {
-                        {
-                            "GBP", new Currency()
-                            {
-                                name = "British pound"
-                            }
-                        }
-                    }
-                }
-            };
-
-            return result;
-        }
-
-        private CityWeatherResponse CreateNewYorkWeather()
-        {
-            CityWeatherResponse result = new CityWeatherResponse()
-            {
-                weather = new List<CityWeatherEntry>()
-                {
-                    new CityWeatherEntry()
-                    {
-                        main = "Rain"
-                    }
-                }
-            };
-
-            return result;
-        }
-
-        private CityWeatherResponse CreateNewportWeather()
-        {
-            CityWeatherResponse result = new CityWeatherResponse()
-            {
-                weather = new List<CityWeatherEntry>()
-                {
-                    new CityWeatherEntry()
-                    {
-                        main = "Sunshine"
-                    }
-                }
-            };
 
             return result;
         }
