@@ -30,7 +30,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateTestCity());
+            controller.AddCity(CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("New York");
 
@@ -51,11 +51,54 @@ namespace CityWeatherApp.tests
         }
 
         [TestMethod]
+        public async Task SearchCityByName_Success_ReturnsMultipleMatchesByExactName()
+        {
+            CityWeatherController controller = CreateController();
+
+            List<AddCityRequest> cities = CreateNewportCities();
+
+            cities.ForEach(city =>
+            {
+                controller.AddCity(city);
+            });
+
+            List<CityResponse> results = await controller.SearchCity("Newport");
+
+            Assert.AreEqual(2, results.Count);
+
+            CityResponse newportUk = results[0];
+
+            Assert.AreEqual("Newport", newportUk.Name);
+            Assert.AreEqual("Gwent", newportUk.State);
+            Assert.AreEqual(2, newportUk.TouristRating);
+            Assert.AreEqual("United Kingdom", newportUk.Country);
+            Assert.AreEqual(new DateTime(2001, 05, 01), newportUk.DateEstablished);
+            Assert.AreEqual(30000, newportUk.EstimatedPopulation);
+            Assert.AreEqual("GB", newportUk.TwoDigitCountryCode);
+            Assert.AreEqual("GBR", newportUk.ThreeDigitCountryCode);
+            Assert.AreEqual("Sunshine", newportUk.Weather);
+            Assert.AreEqual("British pound", newportUk.Currency);
+
+            CityResponse newportUsa = results[1];
+
+            Assert.AreEqual("Newport", newportUsa.Name);
+            Assert.AreEqual("Rhode Island", newportUsa.State);
+            Assert.AreEqual(5, newportUsa.TouristRating);
+            Assert.AreEqual("USA", newportUsa.Country);
+            Assert.AreEqual(new DateTime(2001, 05, 01), newportUsa.DateEstablished);
+            Assert.AreEqual(50000, newportUsa.EstimatedPopulation);
+            Assert.AreEqual("US", newportUsa.TwoDigitCountryCode);
+            Assert.AreEqual("USA", newportUsa.ThreeDigitCountryCode);
+            Assert.AreEqual("Sunshine", newportUsa.Weather);
+            Assert.AreEqual("US Dollar", newportUsa.Currency);
+        }
+
+        [TestMethod]
         public async Task SearchCityByName_NotFound_ReturnsEmpty()
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateTestCity());
+            controller.AddCity(CreateNewYorkCity());
 
             List<CityResponse> cities = await controller.SearchCity("Paris");
 
@@ -67,7 +110,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateTestCity());
+            controller.AddCity(CreateNewYorkCity());
 
             List<CityResponse> cities = await controller .SearchCity("New York");
             CityResponse city = cities[0];
@@ -94,7 +137,7 @@ namespace CityWeatherApp.tests
         {
             CityWeatherController controller = CreateController();
 
-            controller.AddCity(CreateTestCity());
+            controller.AddCity(CreateNewYorkCity());
 
             List<CityResponse> cities = await controller .SearchCity("New York");
             CityResponse city = cities[0];
@@ -126,7 +169,7 @@ namespace CityWeatherApp.tests
             Assert.AreEqual(404, result.StatusCode);
         }
 
-        public AddCityRequest CreateTestCity()
+        public AddCityRequest CreateNewYorkCity()
         {
             DateTime cityDate = new DateTime(2001, 05, 01);
 
@@ -143,45 +186,50 @@ namespace CityWeatherApp.tests
             return result;
         }
 
-        public CityWeatherController CreateController()
+        public List<AddCityRequest> CreateNewportCities()
+        {
+            DateTime cityDate = new DateTime(2001, 05, 01);
+
+            List<AddCityRequest> results = new List<AddCityRequest>()
+            {
+                new AddCityRequest()
+                {
+                    Name = "Newport",
+                    State = "Gwent",
+                    TouristRating = 2,
+                    Country = "United Kingdom",
+                    DateEstablished = cityDate,
+                    EstimatedPopulation = 30000,
+                },
+                new AddCityRequest()
+                {
+                    Name = "Newport",
+                    State = "Rhode Island",
+                    TouristRating = 5,
+                    Country = "USA",
+                    DateEstablished = cityDate,
+                    EstimatedPopulation = 50000
+                }
+            };
+
+            return results;
+        }
+
+        private CityWeatherController CreateController()
         {
             Mock<ICountriesClient> countriesClient = new Mock<ICountriesClient>();
             countriesClient
-                .Setup(m => m.GetByName(It.IsAny<string>()))
-                .ReturnsAsync(
-                    new List<GetCountryByNameResponse>()
-                    {
-                        new GetCountryByNameResponse()
-                        {
-                            cca2 = "US",
-                            cca3 = "USA",
-                            currencies = new Dictionary<string, Currency>()
-                            {
-                                {
-                                    "USD", new Currency()
-                                    {
-                                        name = "US Dollar"
-                                    }
-                                }
-                            }
-                        }
-                    });
+                .Setup(m => m.GetByName(It.Is<string>(s => s == "USA"))).ReturnsAsync(CreateUsaCountryResponse());
+            
+            countriesClient
+                .Setup(m => m.GetByName(It.Is<string>(s => s == "United Kingdom"))).ReturnsAsync(CreateUkCountryResponse());
 
             Mock<IOpenWeatherClient> openWeatherClient = new Mock<IOpenWeatherClient>();
             openWeatherClient
-                .Setup(m => m.GetCityWeather(It.IsAny<string>()))
-                .ReturnsAsync(
-                    new CityWeatherResponse()
-                    {
-                        weather = new List<CityWeatherEntry>()
-                        {
-                            new CityWeatherEntry()
-                            {
-                                main = "Rain"
-                            }
-                        }
-                    }
-                );
+                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "New York"))).ReturnsAsync(CreateNewYorkWeather());
+
+            openWeatherClient
+                .Setup(m => m.GetCityWeather(It.Is<string>(s => s == "Newport"))).ReturnsAsync(CreateNewportWeather());
 
             ICityService cityService = new CityService(
                 new CityDal(),
@@ -191,6 +239,84 @@ namespace CityWeatherApp.tests
             );
 
             CityWeatherController result = new CityWeatherController(cityService);
+
+            return result;
+        }
+
+        private List<GetCountryByNameResponse> CreateUsaCountryResponse()
+        {
+            List<GetCountryByNameResponse> result = new List<GetCountryByNameResponse>()
+            {
+                new GetCountryByNameResponse()
+                {
+                    cca2 = "US",
+                    cca3 = "USA",
+                    currencies = new Dictionary<string, Currency>()
+                    {
+                        {
+                            "USD", new Currency()
+                            {
+                                name = "US Dollar"
+                            }
+                        }
+                    }
+                }
+            };
+
+            return result;
+        }
+
+        private List<GetCountryByNameResponse> CreateUkCountryResponse()
+        {
+            List<GetCountryByNameResponse> result = new List<GetCountryByNameResponse>()
+            {
+                new GetCountryByNameResponse()
+                {
+                    cca2 = "GB",
+                    cca3 = "GBR",
+                    currencies = new Dictionary<string, Currency>()
+                    {
+                        {
+                            "GBP", new Currency()
+                            {
+                                name = "British pound"
+                            }
+                        }
+                    }
+                }
+            };
+
+            return result;
+        }
+
+        private CityWeatherResponse CreateNewYorkWeather()
+        {
+            CityWeatherResponse result = new CityWeatherResponse()
+            {
+                weather = new List<CityWeatherEntry>()
+                {
+                    new CityWeatherEntry()
+                    {
+                        main = "Rain"
+                    }
+                }
+            };
+
+            return result;
+        }
+
+        private CityWeatherResponse CreateNewportWeather()
+        {
+            CityWeatherResponse result = new CityWeatherResponse()
+            {
+                weather = new List<CityWeatherEntry>()
+                {
+                    new CityWeatherEntry()
+                    {
+                        main = "Sunshine"
+                    }
+                }
+            };
 
             return result;
         }

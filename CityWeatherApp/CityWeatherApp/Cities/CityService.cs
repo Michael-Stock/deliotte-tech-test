@@ -41,20 +41,14 @@ namespace CityWeatherApp.Cities
                 return new List<CityResponse>();
             }
 
-            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecords.First().Country);
-            CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(name);
+            List<CityResponse> results = new List<CityResponse>();
 
-            CityResponseBuilderParams parameters = new CityResponseBuilderParams()
+            foreach (var cityRecord in cityRecords)
             {
-                CityRecord = cityRecords.First(),
-                CountryResponse = countryResponse,
-                CityWeatherResponse = weatherResponse
-            };
+                CityResponse cityResponse = await BuildCity(cityRecord);
 
-            List<CityResponse> results = new List<CityResponse>()
-            {
-                cityResponseBuilder.Build(parameters)
-            };
+                results.Add(cityResponse);
+            }
 
             return results;
         }
@@ -81,6 +75,23 @@ namespace CityWeatherApp.Cities
             }
 
             cityDal.DeleteById(id);
+        }
+
+        private async Task<CityResponse> BuildCity(CityRecord cityRecord)
+        {
+            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecord.Country);
+            CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(cityRecord.Name);
+
+            CityResponseBuilderParams parameters = new CityResponseBuilderParams()
+            {
+                CityRecord = cityRecord,
+                CountryResponse = countryResponse,
+                CityWeatherResponse = weatherResponse
+            };
+
+            CityResponse result = cityResponseBuilder.Build(parameters);
+
+            return result;
         }
     }
 
