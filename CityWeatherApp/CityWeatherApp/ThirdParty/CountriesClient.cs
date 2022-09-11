@@ -24,6 +24,11 @@ namespace CityWeatherApp.ThirdParty
 
             HttpResponseMessage response = await client.GetAsync(requestUri);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
             using var responseStream = await response.Content.ReadAsStreamAsync();
             List<GetCountryByNameResponse> result = await JsonSerializer.DeserializeAsync<List<GetCountryByNameResponse>>(responseStream);
 

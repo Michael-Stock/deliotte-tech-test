@@ -30,6 +30,11 @@ namespace CityWeatherApp.Controllers
             this.cityResponseBuilder = cityResponseBuilder;
         }
 
+        /// <summary>
+        /// Adds a city
+        /// </summary>
+        /// <param name="request">The add city request</param>
+        /// <returns></returns>
         [HttpPost()]
         public IActionResult AddCity(AddCityRequest request)
         {
@@ -47,7 +52,7 @@ namespace CityWeatherApp.Controllers
                 return new List<CityResponse>();
             }
 
-            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(name);
+            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecords.First().Country);
             CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(name);
 
             CityResponseBuilderParams parameters = new CityResponseBuilderParams()
