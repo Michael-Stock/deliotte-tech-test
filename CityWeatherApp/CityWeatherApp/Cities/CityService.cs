@@ -10,10 +10,10 @@ namespace CityWeatherApp.Cities
 {
     public class CityService : ICityService
     {
-        private ICityDal cityDal;
-        private ICountriesClient countriesClient;
-        private IOpenWeatherClient openWeatherClient;
-        private ICityResponseBuilder cityResponseBuilder;
+        private readonly ICityDal _cityDal;
+        private readonly ICountriesClient _countriesClient;
+        private readonly IOpenWeatherClient _openWeatherClient;
+        private readonly ICityResponseBuilder _cityResponseBuilder;
 
         public CityService(
             ICityDal cityDal,
@@ -21,20 +21,20 @@ namespace CityWeatherApp.Cities
             IOpenWeatherClient openWeatherClient,
             ICityResponseBuilder cityResponseBuilder)
         {
-            this.cityDal = cityDal;
-            this.countriesClient = countriesClient;
-            this.openWeatherClient = openWeatherClient;
-            this.cityResponseBuilder = cityResponseBuilder;
+            _cityDal = cityDal;
+            _countriesClient = countriesClient;
+            _openWeatherClient = openWeatherClient;
+            _cityResponseBuilder = cityResponseBuilder;
         }
 
         public async Task AddCity(AddCityRequest request)
         {
-            await cityDal.AddCity(request);
+            await _cityDal.AddCity(request);
         }
 
         public async Task<List<CityResponse>> SearchCity(string name)
         {
-            List<CityRecord> cityRecords = await cityDal.SearchByName(name);
+            List<CityRecord> cityRecords = await _cityDal.SearchByName(name);
 
             if (cityRecords.Count == 0)
             {
@@ -49,33 +49,33 @@ namespace CityWeatherApp.Cities
 
         public async Task UpdateById(int id, UpdateCityRequest request)
         {
-            CityRecord existingCity = await cityDal.GetById(id);
+            CityRecord existingCity = await _cityDal.GetById(id);
 
             if (existingCity == null)
             {
                 throw new Exception("City not found");
             }
 
-            await cityDal.UpdateById(id, request);
+            await _cityDal.UpdateById(id, request);
         }
 
         public async Task DeleteById(int id)
         {
-            CityRecord existingCity = await cityDal.GetById(id);
+            CityRecord existingCity = await _cityDal.GetById(id);
 
             if (existingCity == null)
             {
                 throw new Exception("City not found");
             }
 
-            await cityDal.DeleteById(id);
+            await _cityDal.DeleteById(id);
         }
 
         private async Task<CityResponse> BuildCity(CityRecord cityRecord)
         {
             // Could be done in parallel but I will need the result of the country response to get the right city later
-            List<GetCountryByNameResponse> countryResponse = await countriesClient.GetByName(cityRecord.Country);
-            CityWeatherResponse weatherResponse = await openWeatherClient.GetCityWeather(cityRecord.Name);
+            List<GetCountryByNameResponse> countryResponse = await _countriesClient.GetByName(cityRecord.Country);
+            CityWeatherResponse weatherResponse = await _openWeatherClient.GetCityWeather(cityRecord.Name);
 
             CityResponseBuilderParams parameters = new CityResponseBuilderParams()
             {
@@ -84,7 +84,7 @@ namespace CityWeatherApp.Cities
                 CityWeatherResponse = weatherResponse
             };
 
-            CityResponse result = cityResponseBuilder.Build(parameters);
+            CityResponse result = _cityResponseBuilder.Build(parameters);
 
             return result;
         }

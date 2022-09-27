@@ -1,11 +1,8 @@
 ﻿using CityWeatherApp.Cities;
 using CityWeatherApp.DAL.Cities;
 using CityWeatherApp.Domain;
-using CityWeatherApp.ThirdParty;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace CityWeatherApp.tests
 {
@@ -26,7 +23,7 @@ namespace CityWeatherApp.tests
             };
 
             CityResponse result = builder.Build(parameters);
-
+            
             Assert.AreEqual(1, result.Id);
             Assert.AreEqual("New York", result.Name);
             Assert.AreEqual("New York", result.State);
@@ -68,7 +65,7 @@ namespace CityWeatherApp.tests
             Assert.AreEqual(null, result.Currency);
         }
 
-        public CityRecord CreateTestCityRecord()
+        private CityRecord CreateTestCityRecord()
         {
             DateTime cityDate = new DateTime(2001, 05, 01);
 
