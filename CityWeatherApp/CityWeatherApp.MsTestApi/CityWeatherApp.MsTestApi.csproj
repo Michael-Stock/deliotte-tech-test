@@ -34,6 +34,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Features\SearchCity\Requests\AddNewport_US.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Features\SearchCity\Requests\AddNewport_UK.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Features\SearchCity\Requests\AddNewYork.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

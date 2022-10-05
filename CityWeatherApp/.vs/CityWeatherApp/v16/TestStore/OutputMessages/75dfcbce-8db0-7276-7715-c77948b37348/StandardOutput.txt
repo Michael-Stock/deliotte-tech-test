@@ -1,0 +1,97 @@
+-> Loading plugin C:\Git\deliotte-tech-test\CityWeatherApp\CityWeatherApp.MsTestApi\bin\Debug\netcoreapp3.1\LivingDoc.SpecFlowPlugin.dll
+-> Loading plugin C:\Git\deliotte-tech-test\CityWeatherApp\CityWeatherApp.MsTestApi\bin\Debug\netcoreapp3.1\TechTalk.SpecFlow.MSTest.SpecFlowPlugin.dll
+-> Loading plugin C:\Git\deliotte-tech-test\CityWeatherApp\CityWeatherApp.MsTestApi\bin\Debug\netcoreapp3.1\CityWeatherApp.MsTestApi.dll
+-> Using default config
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Git\deliotte-tech-test\CityWeatherApp\CityWeatherApp
+Given a "AddNewportUK" loaded from "./SearchCity/Requests/AddNewport_UK.json"
+-> done: CommonSteps.GivenALoadedFrom("AddNewportUK", "./SearchCity/Requ...") (0.0s)
+And that "AddNewportUK" contains the following properties
+  --- table step argument ---
+  | PropertyName        | Value          |
+  | Name                | Newport        |
+  | State               | Gwent          |
+  | TouristRating       | 2              |
+  | Country             | United Kingdom |
+  | DateEstablished     | 2001-05-01     |
+  | EstimatedPopulation | 30000          |
+-> done: TableSteps.GivenThatContainsTheFollowingProperties("AddNewportUK", <table>) (0.0s)
+And I POST that "AddNewportUK" to "/CityWeather" and store the "PostCityResponseUK"
+-> done: HttpSteps.PostAndStoreTheResponse("AddNewportUK", "/CityWeather", "PostCityResponseUK") (0.4s)
+And the status code is 204
+-> done: HttpSteps.TheStatusCodeIs(204) (0.0s)
+Given a "AddNewportUS" loaded from "./SearchCity/Requests/AddNewport_US.json"
+-> done: CommonSteps.GivenALoadedFrom("AddNewportUS", "./SearchCity/Requ...") (0.0s)
+And that "AddNewportUS" contains the following properties
+  --- table step argument ---
+  | PropertyName        | Value        |
+  | Name                | Newport      |
+  | State               | Rhode Island |
+  | TouristRating       | 5            |
+  | Country             | USA          |
+  | DateEstablished     | 2001-05-01   |
+  | EstimatedPopulation | 50000        |
+-> done: TableSteps.GivenThatContainsTheFollowingProperties("AddNewportUS", <table>) (0.0s)
+And I POST that "AddNewportUS" to "/CityWeather" and store the "PostCityResponseUS"
+-> done: HttpSteps.PostAndStoreTheResponse("AddNewportUS", "/CityWeather", "PostCityResponseUS") (0.0s)
+And the status code is 204
+-> done: HttpSteps.TheStatusCodeIs(204) (0.0s)
+And I GET "/CityWeather?name=Newport" and store the "GetCityResponse"
+-> done: HttpSteps.GetAndStoreTheResponse("/CityWeather?name...", "GetCityResponse") (0.8s)
+And the status code is 200
+-> done: HttpSteps.TheStatusCodeIs(200) (0.0s)
+And that "GetCityResponse.Cities" contains the following instances
+  --- table step argument ---
+  | State        | Name    | TouristRating | Country        | EstimatedPopulation |
+  | Gwent        | Newport | 2             | United Kingdom | 30000               |
+  | Rhode Island | Newport | 5             | USA            | 50000               |
+-> done: TableSteps.GivenThatContainsTheFollowingInstances("GetCityResponse.C...", <table>) (0.0s)
+
+
+TestContext Messages:
+Given a "AddNewportUK" loaded from "./SearchCity/Requests/AddNewport_UK.json"
+-> done: CommonSteps.GivenALoadedFrom("AddNewportUK", "./SearchCity/Requ...") (0.0s)
+And that "AddNewportUK" contains the following properties
+  --- table step argument ---
+  | PropertyName        | Value          |
+  | Name                | Newport        |
+  | State               | Gwent          |
+  | TouristRating       | 2              |
+  | Country             | United Kingdom |
+  | DateEstablished     | 2001-05-01     |
+  | EstimatedPopulation | 30000          |
+-> done: TableSteps.GivenThatContainsTheFollowingProperties("AddNewportUK", <table>) (0.0s)
+And I POST that "AddNewportUK" to "/CityWeather" and store the "PostCityResponseUK"
+-> done: HttpSteps.PostAndStoreTheResponse("AddNewportUK", "/CityWeather", "PostCityResponseUK") (0.4s)
+And the status code is 204
+-> done: HttpSteps.TheStatusCodeIs(204) (0.0s)
+Given a "AddNewportUS" loaded from "./SearchCity/Requests/AddNewport_US.json"
+-> done: CommonSteps.GivenALoadedFrom("AddNewportUS", "./SearchCity/Requ...") (0.0s)
+And that "AddNewportUS" contains the following properties
+  --- table step argument ---
+  | PropertyName        | Value        |
+  | Name                | Newport      |
+  | State               | Rhode Island |
+  | TouristRating       | 5            |
+  | Country             | USA          |
+  | DateEstablished     | 2001-05-01   |
+  | EstimatedPopulation | 50000        |
+-> done: TableSteps.GivenThatContainsTheFollowingProperties("AddNewportUS", <table>) (0.0s)
+And I POST that "AddNewportUS" to "/CityWeather" and store the "PostCityResponseUS"
+-> done: HttpSteps.PostAndStoreTheResponse("AddNewportUS", "/CityWeather", "PostCityResponseUS") (0.0s)
+And the status code is 204
+-> done: HttpSteps.TheStatusCodeIs(204) (0.0s)
+And I GET "/CityWeather?name=Newport" and store the "GetCityResponse"
+-> done: HttpSteps.GetAndStoreTheResponse("/CityWeather?name...", "GetCityResponse") (0.8s)
+And the status code is 200
+-> done: HttpSteps.TheStatusCodeIs(200) (0.0s)
+And that "GetCityResponse.Cities" contains the following instances
+  --- table step argument ---
+  | State        | Name    | TouristRating | Country        | EstimatedPopulation |
+  | Gwent        | Newport | 2             | United Kingdom | 30000               |
+  | Rhode Island | Newport | 5             | USA            | 50000               |
+-> done: TableSteps.GivenThatContainsTheFollowingInstances("GetCityResponse.C...", <table>) (0.0s)

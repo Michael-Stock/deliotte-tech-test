@@ -24,7 +24,7 @@ namespace CityWeatherApp.ThirdParty
         {
             using HttpClient client = clientFactory.CreateClient();
 
-            string requestUri = $"https://{url}/v3.1/name/{name}";
+            string requestUri = $"{url}/v3.1/name/{name}";
 
             HttpResponseMessage response = await client.GetAsync(requestUri);
 

@@ -1,3 +1,4 @@
+using CityWeatherApp.Configuration;
 using CityWeatherApp.DAL.Cities;
 using CityWeatherApp.Domain;
 using CityWeatherApp.IntegrationTests.Mocks;
@@ -15,6 +16,9 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WireMock.RequestBuilders;
+using WireMock.ResponseBuilders;
+using WireMock.Server;
 
 namespace CityWeatherApp.IntegrationTests
 {
@@ -24,9 +28,10 @@ namespace CityWeatherApp.IntegrationTests
         private readonly string baseUrl = "/cityWeather";
         private WebApplicationFactory<Startup> _application;
         private HttpClient _client;
+        private WireMockServer _mockApi;
 
         [TestInitialize]
-        public void Initialize()
+        public async Task Initialize()
         {
             using (CityContext context = new CityContext())
             {
@@ -34,13 +39,21 @@ namespace CityWeatherApp.IntegrationTests
                 context.SaveChanges();
             }
 
+            _mockApi = WireMockServer.Start(3005);
+
+            SetupCountryMockResponses();
+
             _application = new WebApplicationFactory<Startup>()
-                .WithWebHostBuilder(builder => 
+                .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureServices((IServiceCollection services) =>
                     {
-                        services.AddScoped<ICountriesClient, MockCountriesClient>();
                         services.AddScoped<IOpenWeatherClient, MockWeatherClient>();
+                        services.Configure<ExternalApiOptions>(config =>
+                        {
+                            config.CountryApiUrl = "http://localhost:3005";
+                            config.WeatherApiUrl = "http://localhost:3005";
+                        });
                     });
                 });
 
@@ -53,6 +66,7 @@ namespace CityWeatherApp.IntegrationTests
         {
             _client.Dispose();
             _application.Dispose();
+            _mockApi.Stop();
         }
 
         [TestMethod]
@@ -242,6 +256,17 @@ namespace CityWeatherApp.IntegrationTests
             actual.Id.Should().BeGreaterThan(0);
 
             actual.Should().BeEquivalentTo(expected, options => options.Excluding(o => o.Id));
+        }
+
+        private void SetupCountryMockResponses()
+        {
+            _mockApi
+                .Given(Request.Create().WithPath("/v3.1/name/USA").UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateUsaCountryResponse()));
+
+            _mockApi
+                .Given(Request.Create().WithPath("/v3.1/name/United Kingdom").UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateUkCountryResponse()));
         }
     }
 }
