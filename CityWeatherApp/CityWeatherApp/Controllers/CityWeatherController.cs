@@ -1,5 +1,6 @@
 ﻿using CityWeatherApp.Cities;
 using CityWeatherApp.Domain;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,24 +11,35 @@ namespace CityWeatherApp.Controllers
     [Route("[controller]")]
     public class CityWeatherController : ControllerBase
     {
-        ICityService cityService;
+        ICityService _cityService;
+        IValidator<AddCityRequest> _addCityRequestValidator;
 
-        public CityWeatherController(ICityService cityService)
+        public CityWeatherController(
+            ICityService cityService,
+            IValidator<AddCityRequest> addCityRequestValidator)
         {
-            this.cityService = cityService;
+            this._cityService = cityService;
+            this._addCityRequestValidator = addCityRequestValidator;
         }
 
         [HttpPost()]
         public async Task<IActionResult> AddCity(AddCityRequest request)
         {
-            await cityService.AddCity(request);
+            var validationResult = await _addCityRequestValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest();
+            }
+
+            await _cityService.AddCity(request);
             return NoContent();
         }
 
         [HttpGet()]
         public async Task<CityResponse> SearchCity(string name)
         {
-            CityResponse results = await cityService.SearchCity(name);
+            CityResponse results = await _cityService.SearchCity(name);
 
             return results;
         }
@@ -37,7 +49,7 @@ namespace CityWeatherApp.Controllers
         {
             try
             {
-                await cityService.UpdateById(id, request);
+                await _cityService.UpdateById(id, request);
             }
             catch
             {
@@ -52,7 +64,7 @@ namespace CityWeatherApp.Controllers
         {
             try
             {
-                await cityService.DeleteById(id);
+                await _cityService.DeleteById(id);
             }
             catch
             {

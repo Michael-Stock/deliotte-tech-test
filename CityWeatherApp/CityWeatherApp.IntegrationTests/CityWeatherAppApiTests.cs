@@ -137,6 +137,15 @@ namespace CityWeatherApp.IntegrationTests
         }
 
         [TestMethod]
+        public async Task AddCity_MissingProperties_ReturnsBadRequest()
+        {
+            string body = "{}";
+
+            var postResponse = await _client.PostAsync(baseUrl, CreateJsonPayload(body));
+            postResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
         public async Task DeleteCityById_Success_DeletesCity()
         {
             await AddCity(CityMockData.CreateNewYorkCity());

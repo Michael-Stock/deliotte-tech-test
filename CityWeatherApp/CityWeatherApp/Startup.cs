@@ -1,7 +1,9 @@
 using CityWeatherApp.Cities;
 using CityWeatherApp.Configuration;
 using CityWeatherApp.DAL.Cities;
+using CityWeatherApp.Domain;
 using CityWeatherApp.ThirdParty;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,10 +25,13 @@ namespace CityWeatherApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy = null;
-            });
+            services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
+
             services.AddHttpClient();
 
             services.AddSwaggerGen(c =>
@@ -41,6 +46,9 @@ namespace CityWeatherApp
             services.AddScoped<ICountriesClient, CountriesClient>();
             services.AddScoped<ICityResponseBuilder, CityResponseBuilder>();
             services.AddScoped<ICityService, CityService>();
+
+            // Validators
+            services.AddScoped<IValidator<AddCityRequest>, AddCityRequestValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
