@@ -9,9 +9,9 @@ namespace CityWeatherApp.Cities
 {
     public class CityResponseBuilder : ICityResponseBuilder
     {
-        public CityResponse Build(CityResponseBuilderParams parameters)
+        public CityEntry Build(CityResponseBuilderParams parameters)
         {
-            CityResponse result = new CityResponse()
+            CityEntry result = new CityEntry()
             {
                 Id = parameters.CityRecord.Id,
                 State = parameters.CityRecord.State,
@@ -32,7 +32,7 @@ namespace CityWeatherApp.Cities
 
     public interface ICityResponseBuilder
     {
-        public CityResponse Build(CityResponseBuilderParams parameters);
+        public CityEntry Build(CityResponseBuilderParams parameters);
     }
 
     public class CityResponseBuilderParams

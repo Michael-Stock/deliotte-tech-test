@@ -62,11 +62,11 @@ namespace CityWeatherApp.IntegrationTests
 
             var result = await GetByName("New York");
 
-            result.Should().HaveCount(1);
+            result.Cities.Should().HaveCount(1);
 
-            var city = result[0];
+            var city = result.Cities[0];
 
-            AssertCity(city, new CityResponse()
+            AssertCity(city, new CityEntry()
             {
                 Name = "New York",
                 State = "New York",
@@ -93,12 +93,12 @@ namespace CityWeatherApp.IntegrationTests
 
             var results = await GetByName("Newport");
 
-            results.Count.Should().Be(2);
+            results.Cities.Count.Should().Be(2);
 
             // Two different asserion styles I think I prefer the first one
-            CityResponse newportUk = results[0];
+            CityEntry newportUk = results.Cities[0];
 
-            AssertCity(newportUk, new CityResponse()
+            AssertCity(newportUk, new CityEntry()
             {
                 Name = "Newport",
                 State = "Gwent",
@@ -112,7 +112,7 @@ namespace CityWeatherApp.IntegrationTests
                 Currency = "British pound"
             });
 
-            CityResponse newportUsa = results[1];
+            CityEntry newportUsa = results.Cities[1];
 
             newportUsa.Name.Should().Be("Newport");
             newportUsa.State.Should().Be("Rhode Island");
@@ -133,7 +133,7 @@ namespace CityWeatherApp.IntegrationTests
 
             var result = await GetByName("Paris");
 
-            result.Count.Should().Be(0);
+            result.Cities.Count.Should().Be(0);
         }
 
         [TestMethod]
@@ -142,14 +142,14 @@ namespace CityWeatherApp.IntegrationTests
             await AddCity(CityMockData.CreateNewYorkCity());
 
             var cities = await GetByName("New York");
-            CityResponse city = cities[0];
+            CityEntry city = cities.Cities[0];
 
             var response = await _client.DeleteAsync($"{baseUrl}/{city.Id}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var result = await GetByName("New York");
 
-            result.Count.Should().Be(0);
+            result.Cities.Count.Should().Be(0);
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@ namespace CityWeatherApp.IntegrationTests
 
             var cities = await GetByName("New York");
 
-            CityResponse city = cities[0];
+            CityEntry city = cities.Cities[0];
 
             UpdateCityRequest updateRequest = new UpdateCityRequest()
             {
@@ -181,7 +181,7 @@ namespace CityWeatherApp.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var results = await GetByName("New York");
-            CityResponse result = results[0];
+            CityEntry result = results.Cities[0];
 
             result.TouristRating.Should().Be(1);
             result.EstimatedPopulation.Should().Be(1000000);
@@ -212,13 +212,13 @@ namespace CityWeatherApp.IntegrationTests
             postResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
-        private async Task<List<CityResponse>> GetByName(string name)
+        private async Task<CityResponse> GetByName(string name)
         {
             var response = await _client.GetAsync($"{baseUrl}?name={name}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var results = JsonSerializer.Deserialize<List<CityResponse>>(jsonString);
+            var results = JsonSerializer.Deserialize<CityResponse>(jsonString);
 
             return results;
         }
@@ -228,7 +228,7 @@ namespace CityWeatherApp.IntegrationTests
             return new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
         }
 
-        private void AssertCity(CityResponse actual, CityResponse expected)
+        private void AssertCity(CityEntry actual, CityEntry expected)
         {
             actual.Id.Should().BeGreaterThan(0);
 

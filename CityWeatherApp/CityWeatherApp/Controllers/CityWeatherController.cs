@@ -25,9 +25,9 @@ namespace CityWeatherApp.Controllers
         }
 
         [HttpGet()]
-        public async Task<List<CityResponse>> SearchCity(string name)
+        public async Task<CityResponse> SearchCity(string name)
         {
-            List<CityResponse> results = await cityService.SearchCity(name);
+            CityResponse results = await cityService.SearchCity(name);
 
             return results;
         }

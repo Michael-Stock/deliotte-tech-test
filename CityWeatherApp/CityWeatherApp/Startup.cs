@@ -47,7 +47,11 @@ namespace CityWeatherApp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI((c) => 
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = "";
+            });
 
             if (env.IsDevelopment())
             {

@@ -32,19 +32,24 @@ namespace CityWeatherApp.Cities
             await _cityDal.AddCity(request);
         }
 
-        public async Task<List<CityResponse>> SearchCity(string name)
+        public async Task<CityResponse> SearchCity(string name)
         {
             List<CityRecord> cityRecords = await _cityDal.SearchByName(name);
 
             if (cityRecords.Count == 0)
             {
-                return new List<CityResponse>();
+                return new CityResponse();
             }
 
             var tasks = cityRecords.Select(city => BuildCity(city));
-            var results = await Task.WhenAll(tasks);
+            var cities = await Task.WhenAll(tasks);
 
-            return results.ToList();
+            var result = new CityResponse()
+            {
+                Cities = cities.ToList()
+            };
+
+            return result;
         }
 
         public async Task UpdateById(int id, UpdateCityRequest request)
@@ -71,7 +76,7 @@ namespace CityWeatherApp.Cities
             await _cityDal.DeleteById(id);
         }
 
-        private async Task<CityResponse> BuildCity(CityRecord cityRecord)
+        private async Task<CityEntry> BuildCity(CityRecord cityRecord)
         {
             // Could be done in parallel but I will need the result of the country response to get the right city later
             List<GetCountryByNameResponse> countryResponse = await _countriesClient.GetByName(cityRecord.Country);
@@ -84,7 +89,7 @@ namespace CityWeatherApp.Cities
                 CityWeatherResponse = weatherResponse
             };
 
-            CityResponse result = _cityResponseBuilder.Build(parameters);
+            CityEntry result = _cityResponseBuilder.Build(parameters);
 
             return result;
         }
@@ -96,6 +101,6 @@ namespace CityWeatherApp.Cities
         public Task UpdateById(int id, UpdateCityRequest request);
         public Task DeleteById(int id);
 
-        public Task<List<CityResponse>> SearchCity(string name);
+        public Task<CityResponse> SearchCity(string name);
     }
 }

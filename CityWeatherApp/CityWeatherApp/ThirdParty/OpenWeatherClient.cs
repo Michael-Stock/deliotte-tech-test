@@ -38,7 +38,7 @@ namespace CityWeatherApp.ThirdParty
         }
         private async Task<List<GeoCoordinatesResponse>> GetGeoCoordinates(string name)
         {
-            HttpClient client = clientFactory.CreateClient();
+            using HttpClient client = clientFactory.CreateClient();
 
             string requestUri = $"http://{url}/geo/1.0/direct?q={name}&appid={apiKey}";
 
@@ -57,7 +57,7 @@ namespace CityWeatherApp.ThirdParty
 
         private async Task<CityWeatherResponse> GetWeather(GeoCoordinatesResponse cityCoordinates)
         {
-            HttpClient client = clientFactory.CreateClient();
+            using HttpClient client = clientFactory.CreateClient();
 
             string requestUri = $"https://{url}/data/2.5/weather?lat={cityCoordinates.lat}&lon={cityCoordinates.lon}&appid={apiKey}";
 

@@ -22,7 +22,7 @@ namespace CityWeatherApp.tests
 
             };
 
-            CityResponse result = builder.Build(parameters);
+            CityEntry result = builder.Build(parameters);
             
             Assert.AreEqual(1, result.Id);
             Assert.AreEqual("New York", result.Name);
@@ -50,7 +50,7 @@ namespace CityWeatherApp.tests
 
             };
 
-            CityResponse result = builder.Build(parameters);
+            CityEntry result = builder.Build(parameters);
 
             Assert.AreEqual(1, result.Id);
             Assert.AreEqual("New York", result.Name);

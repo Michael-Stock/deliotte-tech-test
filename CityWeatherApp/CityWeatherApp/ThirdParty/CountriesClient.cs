@@ -22,7 +22,7 @@ namespace CityWeatherApp.ThirdParty
 
         public async Task<List<GetCountryByNameResponse>> GetByName(string name)
         {
-            HttpClient client = clientFactory.CreateClient();
+            using HttpClient client = clientFactory.CreateClient();
 
             string requestUri = $"https://{url}/v3.1/name/{name}";
 
