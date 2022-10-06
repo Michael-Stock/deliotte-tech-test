@@ -10,6 +10,8 @@ namespace CityWeatherApp.Configuration
         public const string ExternalApi = "ExternalApi";
         public string CountryApiUrl { get; set; }
         public string WeatherApiUrl { get; set; }
+
+        public string GeoApiUrl { get; set; }
         public string WeatherApiKey { get; set; }
     }
 }

@@ -131,5 +131,31 @@ namespace CityWeatherApp.IntegrationTests
 
             return results;
         }
+
+        public static List<GeoCoordinatesResponse> CreateNewYorkGeoData()
+        {
+            return new List<GeoCoordinatesResponse>()
+            {
+                new GeoCoordinatesResponse()
+                {
+                    lat = 10,
+                    lon = 20
+                }
+
+            };
+        }
+
+        public static List<GeoCoordinatesResponse> CreateNewportGeoData()
+        {
+            return new List<GeoCoordinatesResponse>()
+            {
+                new GeoCoordinatesResponse()
+                {
+                    lat = 100,
+                    lon = 200
+                }
+
+            };
+        }
     }
 }

@@ -16,6 +16,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WireMock.Matchers;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -31,7 +32,7 @@ namespace CityWeatherApp.IntegrationTests
         private WireMockServer _mockApi;
 
         [TestInitialize]
-        public async Task Initialize()
+        public void Initialize()
         {
             using (CityContext context = new CityContext())
             {
@@ -41,18 +42,19 @@ namespace CityWeatherApp.IntegrationTests
 
             _mockApi = WireMockServer.Start(3005);
 
-            SetupCountryMockResponses();
+            SetupMockResponses();
 
             _application = new WebApplicationFactory<Startup>()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureServices((IServiceCollection services) =>
                     {
-                        services.AddScoped<IOpenWeatherClient, MockWeatherClient>();
                         services.Configure<ExternalApiOptions>(config =>
                         {
                             config.CountryApiUrl = "http://localhost:3005";
                             config.WeatherApiUrl = "http://localhost:3005";
+                            config.GeoApiUrl = "http://localhost:3005";
+                            config.WeatherApiKey = "123";
                         });
                     });
                 });
@@ -258,6 +260,13 @@ namespace CityWeatherApp.IntegrationTests
             actual.Should().BeEquivalentTo(expected, options => options.Excluding(o => o.Id));
         }
 
+        private void SetupMockResponses()
+        {
+            SetupCountryMockResponses();
+            SetupGeoLocationMockResponses();
+            SetupWeatherResponses();
+        }
+
         private void SetupCountryMockResponses()
         {
             _mockApi
@@ -267,6 +276,44 @@ namespace CityWeatherApp.IntegrationTests
             _mockApi
                 .Given(Request.Create().WithPath("/v3.1/name/United Kingdom").UsingGet())
                 .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateUkCountryResponse()));
+        }
+
+        private void SetupGeoLocationMockResponses()
+        {
+            _mockApi
+                .Given(Request.Create()
+                    .WithPath("/geo/1.0/direct")
+                    .WithParam("q", new ExactMatcher("New York"))
+                    .WithParam("appid", "123")
+                    .UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateNewYorkGeoData()));
+
+            _mockApi
+                .Given(Request.Create().WithPath("/geo/1.0/direct")
+                    .WithParam("q", new ExactMatcher("Newport"))
+                    .WithParam("appid", "123")
+                    .UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateNewportGeoData()));
+        }
+
+        private void SetupWeatherResponses()
+        {
+            _mockApi
+                .Given(Request.Create()
+                    .WithPath("/data/2.5/weather")
+                    .WithParam("lat", new ExactMatcher("10.0"))
+                    .WithParam("lon", new ExactMatcher("20.0"))
+                    .WithParam("appid", new ExactMatcher("123"))
+                    .UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateNewYorkWeather()));
+
+            _mockApi
+                .Given(Request.Create().WithPath("/data/2.5/weather")
+                    .WithParam("lat", new ExactMatcher("100.0"))
+                    .WithParam("lon", new ExactMatcher("200.0"))
+                    .WithParam("appid", new ExactMatcher("123"))
+                    .UsingGet())
+                .RespondWith(Response.Create().WithStatusCode(200).WithBodyAsJson(CityMockData.CreateNewportWeather()));
         }
     }
 }
